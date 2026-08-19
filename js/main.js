@@ -132,14 +132,28 @@ document.addEventListener('DOMContentLoaded', () => {
     contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = contactForm.querySelector('.form-submit');
+      const originalLabel = submitBtn.textContent;
       submitBtn.textContent = 'Sending…';
       submitBtn.disabled = true;
 
-      // Simulate submission (replace with actual endpoint)
-      await new Promise(resolve => setTimeout(resolve, 1400));
+      try {
+        const response = await fetch(contactForm.action, {
+          method: 'POST',
+          body: new FormData(contactForm),
+          headers: { 'Accept': 'application/json' }
+        });
 
-      contactForm.style.display = 'none';
-      if (formSuccess) formSuccess.style.display = 'block';
+        if (response.ok) {
+          contactForm.style.display = 'none';
+          if (formSuccess) formSuccess.style.display = 'block';
+        } else {
+          throw new Error('Submission failed');
+        }
+      } catch (err) {
+        submitBtn.textContent = originalLabel;
+        submitBtn.disabled = false;
+        alert('Sorry, something went wrong sending your message. Please try again or email us directly at hello@autismsupporthub.com.au.');
+      }
     });
 
     // Real-time validation feedback
